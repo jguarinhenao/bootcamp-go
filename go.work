@@ -1,3 +1,9 @@
-go 1.21.4
+go 1.21.5
 
-use ./supermarket-api/code
+toolchain go1.21.6
+
+use (
+	./Code-Review-Chi
+	./supermarket-api/code
+	./tickets-challenge
+)

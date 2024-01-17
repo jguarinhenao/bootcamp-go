@@ -20,6 +20,15 @@ func (s *ProductDefault) GetAll() ([]*internal.Product, error) {
 	return s.rp.GetAll()
 }
 
+func (s *ProductDefault) SearchByPrice(priceGT float64) ([]*internal.Product, error) {
+
+	if priceGT < 0 {
+		return nil, fmt.Errorf("%w: price", internal.ErrInvalidPrice)
+	}
+
+	return s.rp.SearchByPrice(priceGT)
+}
+
 func (s *ProductDefault) Get(id int) (*internal.Product, error) {
 
 	if id < 0 {
@@ -102,13 +111,4 @@ func (s *ProductDefault) Update(p *internal.Product) (product *internal.Product,
 
 func (s *ProductDefault) Delete(id int) error {
 	return s.rp.Delete(id)
-}
-
-func (s *ProductDefault) SearchByPrice(priceGT float64) ([]*internal.Product, error) {
-
-	if priceGT < 0 {
-		return nil, fmt.Errorf("%w: price", internal.ErrInvalidPrice)
-	}
-
-	return s.rp.SearchByPrice(priceGT)
 }
