@@ -97,6 +97,31 @@ func validateYear(year int) (err error) {
 	return nil
 }
 
+func validateMaxSpeed(maxSpeed float64) (err error) {
+	if maxSpeed <= 0 {
+		return fmt.Errorf("%w: MaxSpeed must be a positive value", internal.ErrFieldRequired)
+	}
+
+	return nil
+}
+
+func validateWeightRanges(minRange float64, maxRange float64) (err error) {
+	if minRange < 0 {
+		return fmt.Errorf("%w: MinRange must be a positive value", internal.ErrFieldRequired)
+	}
+
+	if maxRange < 0 {
+		return fmt.Errorf("%w: MaxRange must be a positive value", internal.ErrFieldRequired)
+	}
+
+	if minRange > maxRange {
+		return fmt.Errorf("%w: MinRange must be less than MaxRange", internal.ErrFieldRequired)
+	}
+
+	return nil
+
+}
+
 // FindAll is a method that returns a map of all vehicles
 func (s *VehicleDefault) FindAll() (v map[int]internal.Vehicle, err error) {
 	v, err = s.rp.FindAll()
@@ -193,8 +218,130 @@ func (s *VehicleDefault) AddVehicles(v []internal.Vehicle) (err error) {
 		default:
 			err = fmt.Errorf("%w", internal.ErrUnknown)
 		}
-
 	}
 
 	return
+}
+
+func (s *VehicleDefault) FindByFuelType(fuelType string) (v map[int]internal.Vehicle, err error) {
+
+	v, err = s.rp.FindByFuelType(fuelType)
+
+	if err != nil {
+		switch err {
+		case internal.ErrVehiclesNotFound:
+			err = fmt.Errorf("%w: fuelType %s", internal.ErrVehiclesNotFound, fuelType)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+}
+
+func (s *VehicleDefault) DeleteVehicle(id int) (err error) {
+	err = s.rp.DeleteVehicle(id)
+	if err != nil {
+		switch err {
+		case internal.ErrVehicleNotFound:
+			err = fmt.Errorf("%w: id %d", internal.ErrVehicleNotFound, id)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+}
+
+func (s *VehicleDefault) FindByTransmissionType(transmissionType string) (v map[int]internal.Vehicle, err error) {
+
+	v, err = s.rp.FindByTransmissionType(transmissionType)
+
+	if err != nil {
+		switch err {
+		case internal.ErrVehiclesNotFound:
+			err = fmt.Errorf("%w: transmissionType %s", internal.ErrVehiclesNotFound, transmissionType)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+}
+
+func (r *VehicleDefault) UpdatePartials(id int, partials map[string]interface{}) (err error) {
+
+	for key, value := range partials {
+		switch key {
+		case "max_speed":
+			if err = validateMaxSpeed(value.(float64)); err != nil {
+				return err
+			}
+		}
+	}
+
+	err = r.rp.UpdatePartials(id, partials)
+	if err != nil {
+		switch err {
+		case internal.ErrVehicleNotFound:
+			err = fmt.Errorf("%w: id %d", internal.ErrVehicleNotFound, id)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+}
+
+func (s *VehicleDefault) GetAveragePassengersByBrand(brand string) (averagePassengers float64, err error) {
+	averagePassengers, err = s.rp.GetAveragePassengersByBrand(brand)
+
+	if err != nil {
+		switch err {
+		case internal.ErrVehiclesNotFound:
+			err = fmt.Errorf("%w: brand %s", internal.ErrVehiclesNotFound, brand)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+}
+
+func (r *VehicleDefault) FindByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) (v map[int]internal.Vehicle, err error) {
+
+	v, err = r.rp.FindByDimensions(minLength, maxLength, minWidth, maxWidth)
+
+	if err != nil {
+		switch err {
+		case internal.ErrVehiclesNotFound:
+			err = fmt.Errorf("%w: dimensions %f - %f, %f - %f", internal.ErrVehiclesNotFound, minLength, maxLength, minWidth, maxWidth)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+
+}
+
+func (r *VehicleDefault) FindByWeightRange(minWeight float64, maxWeight float64) (v map[int]internal.Vehicle, err error) {
+
+	if err = validateWeightRanges(minWeight, maxWeight); err != nil {
+		return nil, err
+	}
+
+	v, err = r.rp.FindByWeightRange(minWeight, maxWeight)
+
+	if err != nil {
+		switch err {
+		case internal.ErrVehiclesNotFound:
+			err = fmt.Errorf("%w: weight %f - %f", internal.ErrVehiclesNotFound, minWeight, maxWeight)
+		default:
+			err = fmt.Errorf("%w", internal.ErrUnknown)
+		}
+	}
+
+	return
+
 }

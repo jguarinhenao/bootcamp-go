@@ -116,3 +116,138 @@ func (r *VehicleMap) AddVehicles(v []internal.Vehicle) error {
 
 	return nil
 }
+
+func (r *VehicleMap) FindByFuelType(fuelType string) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// search vehicles by fuel type
+	for key, value := range r.db {
+		if value.FuelType == fuelType {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		return nil, internal.ErrVehiclesNotFound
+	}
+
+	return
+}
+
+func (r *VehicleMap) DeleteVehicle(id int) (err error) {
+	// verify if vehicle exists in the repository
+	if _, ok := r.db[id]; !ok {
+		return internal.ErrVehicleNotFound
+	}
+
+	delete(r.db, id)
+
+	return nil
+}
+
+func (r *VehicleMap) FindByTransmissionType(transmissionType string) (v map[int]internal.Vehicle, err error) {
+
+	v = make(map[int]internal.Vehicle)
+
+	// search vehicles by fuel type
+	for key, value := range r.db {
+		if value.Transmission == transmissionType {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		return nil, internal.ErrVehiclesNotFound
+	}
+
+	return
+}
+
+func (r *VehicleMap) UpdatePartials(id int, partials map[string]interface{}) (err error) {
+	// verify if vehicle exists in the repository
+	vehicle, ok := r.db[id]
+	if !ok {
+		return internal.ErrVehicleNotFound
+	}
+
+	for key, value := range partials {
+		switch key {
+		case "brand":
+			vehicle.Brand = value.(string)
+		case "color":
+			vehicle.Color = value.(string)
+		case "fabrication_year":
+			vehicle.FabricationYear = value.(int)
+		case "fuel_type":
+			vehicle.FuelType = value.(string)
+		case "max_speed":
+			vehicle.MaxSpeed = value.(float64)
+		case "transmission":
+			vehicle.Transmission = value.(string)
+		}
+	}
+
+	r.db[id] = vehicle
+
+	return nil
+}
+
+func (r *VehicleMap) GetAveragePassengersByBrand(brand string) (averagePassengers float64, err error) {
+	var totalPassengers int
+	var totalVehicles int
+
+	// search vehicles by brand
+	for _, value := range r.db {
+		if value.Brand == brand {
+			totalPassengers += value.Capacity
+			totalVehicles++
+		}
+	}
+
+	fmt.Println("TotalPassengers:", totalPassengers)
+	fmt.Println("TotalVehicles:", totalVehicles)
+
+	if totalVehicles == 0 {
+		return 0, internal.ErrVehiclesNotFound
+	}
+
+	averagePassengers = float64(totalPassengers) / float64(totalVehicles)
+
+	fmt.Println("Average:", averagePassengers)
+
+	return
+}
+
+func (r *VehicleMap) FindByDimensions(minLength float64, maxLength float64, minWidth float64, maxWidth float64) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// search vehicles by dimensions
+	for key, value := range r.db {
+		if value.Length >= minLength && value.Length <= maxLength && value.Width >= minWidth && value.Width <= maxWidth {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		return nil, internal.ErrVehiclesNotFound
+	}
+
+	return
+}
+
+func (r *VehicleMap) FindByWeightRange(minWeight float64, maxWeight float64) (v map[int]internal.Vehicle, err error) {
+	v = make(map[int]internal.Vehicle)
+
+	// search vehicles by weight range
+	for key, value := range r.db {
+		if value.Weight >= minWeight && value.Weight <= maxWeight {
+			v[key] = value
+		}
+	}
+
+	if len(v) == 0 {
+		return nil, internal.ErrVehiclesNotFound
+	}
+
+	return
+}

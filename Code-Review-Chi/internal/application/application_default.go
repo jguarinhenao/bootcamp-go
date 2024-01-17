@@ -82,6 +82,23 @@ func (a *ServerChi) Run() (err error) {
 		rt.Get("/average_speed/brand/{brand}", hd.GetAverageSpeedByBrand())
 
 		rt.Post("/batch", hd.AddVehicles())
+
+		rt.Put("/{id}/update_speed", hd.UpdateSpeed())
+
+		rt.Put("/{id}/update_fuel", hd.UpdateFuel())
+
+		rt.Get("/fuel_type/{type}", hd.FindByFuelType())
+
+		rt.Delete("/{id}", hd.DeleteVehicle())
+
+		rt.Get("/transmission/{type}", hd.FindByTransmissionType())
+
+		rt.Get("/average_capacity/brand/{brand}", hd.GetAveragePassengersByBrand())
+
+		rt.Get("/dimensions", hd.FindByDimensions())
+
+		rt.Get("/weight", hd.FindByWeightRange())
+
 	})
 
 	// run server
